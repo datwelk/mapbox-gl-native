@@ -251,11 +251,14 @@ private:
             },
             [] (const Storage& s, const char * key) {
                 optional<T> member = Traits::objectMember(reinterpret_cast<const T&>(s), key);
-                if (member) return optional<Convertible>(std::move(*member));
-                return optional<Convertible>();
+                if (member) {
+                    return optional<Convertible>(Convertible(std::move(*member)));
+                } else {
+                    return optional<Convertible>();
+                }
             },
             [] (const Storage& s, const std::function<optional<Error> (const std::string&, const Convertible&)>& fn) {
-                return Traits::eachMember(reinterpret_cast<const T&>(s), [&](const std::string& k, const T&& v) {
+                return Traits::eachMember(reinterpret_cast<const T&>(s), [&](const std::string& k, T&& v) {
                     return fn(k, Convertible(std::move(v)));
                 });
             },

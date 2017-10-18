@@ -111,8 +111,8 @@ public:
 };
 
 template <class T, class...Args>
-optional<T> convert(const mbgl::android::Value& value, Error& error, Args&&...args) {
-    return convert<T>(Convertible(value), error, std::forward<Args>(args)...);
+optional<T> convert(mbgl::android::Value&& value, Error& error, Args&&...args) {
+    return convert<T>(Convertible(std::move(value)), error, std::forward<Args>(args)...);
 }
 
 } // namespace conversion
