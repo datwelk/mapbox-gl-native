@@ -30,6 +30,9 @@ workflows:
       - linux-gcc5-debug-coverage
       - linux-gcc5-release-qt4
       - linux-gcc5-release-qt5
+      - ios-debug
+      - ios-sanitize-address
+      - ios-sanitize-thread
 
 step-library:
   - &generate-cache-key
@@ -47,7 +50,7 @@ step-library:
   - &save-cache
       save_cache:
         key: 'v3/{{ .Environment.CIRCLE_JOB }}/{{ arch }}/{{ .Branch }}/{{ checksum ".circle-week" }}'
-        paths: [ "node_modules", "/root/.ccache", "mason_packages/.binaries" ]
+        paths: [ "node_modules", "/root/.ccache", "~/.ccache", "mason_packages/.binaries" ]
 
 
   - &reset-ccache-stats
@@ -97,6 +100,23 @@ step-library:
       run:
         name: Build qt-test
         command: make qt-test
+  - &build-iproj
+      run:
+        name: Build iproj
+        command: make iproj
+  - &build-ios-test
+      run:
+        name: Build core and iOS SDK for testing
+        command: fastlane scan --build_for_testing
+
+
+  - &install-ios-dependencies
+      run:
+        name: Install dependencies
+        command: |
+          brew install cmake
+          brew install ccache
+          sudo gem install fastlane
 
 
   - &run-node-tests
@@ -134,6 +154,18 @@ step-library:
       store_artifacts:
         path: mapbox-gl-js/test/integration/render-tests/index-recycle-map.html
         destination: render-tests
+  - &upload-ios-build-log
+      store_artifacts:
+        path: ~/Library/Logs/scan
+        destination: scan-logs-build
+  - &upload-ios-test-log
+      store_artifacts:
+        path: ~/Library/Logs/scan
+        destination: scan-logs-test
+  - &upload-ios-test-artifacts
+      store_artifacts:
+        path: test_output
+        destination: test_output
 
 jobs:
 # ------------------------------------------------------------------------------
@@ -589,3 +621,83 @@ jobs:
           command: |
             xvfb-run --server-args="-screen 0 1024x768x24" \
               scripts/valgrind.sh build/qt-linux-x86_64/Release/mbgl-test --gtest_filter=-*.Load --gtest_filter=-Memory.Vector
+
+# ------------------------------------------------------------------------------
+  ios-debug:
+    macos:
+      xcode: "9.0"
+    environment:
+      SCAN_WORKSPACE: platform/ios/ios.xcworkspace
+      SCAN_SCHEME: CI
+      SCAN_CONFIGURATION: Debug
+      SCAN_DEVICE: iPhone 7
+      HOMEBREW_NO_AUTO_UPDATE: 1
+    steps:
+      - checkout
+      - *install-ios-dependencies
+      - *generate-cache-key
+      - *restore-cache
+      - *reset-ccache-stats
+      - *build-iproj
+      - *build-ios-test
+      - *upload-ios-build-log
+      - run:
+          name: List available simulators
+          command: xcrun simctl list
+      - run:
+          name: Run SDK unit tests
+          command: fastlane scan --skip_build --include_simulator_logs=true
+      - *upload-ios-test-artifacts
+      - *upload-ios-test-log
+      - *show-ccache-stats
+      - *save-cache
+
+# ------------------------------------------------------------------------------
+  ios-sanitize-address:
+    macos:
+      xcode: "9.0"
+    environment:
+      SCAN_WORKSPACE: platform/ios/ios.xcworkspace
+      SCAN_SCHEME: CI
+      SCAN_CONFIGURATION: Debug
+      SCAN_DEVICE: iPhone 7
+      HOMEBREW_NO_AUTO_UPDATE: 1
+    steps:
+      - checkout
+      - *install-ios-dependencies
+      - *generate-cache-key
+      - *restore-cache
+      - *reset-ccache-stats
+      - *build-iproj
+      - run:
+          name: Build and run SDK unit tests with address sanitizer
+          command: fastlane scan --address_sanitizer --include_simulator_logs=true
+      - *upload-ios-test-artifacts
+      - *upload-ios-test-log
+      - *show-ccache-stats
+      - *save-cache
+
+# ------------------------------------------------------------------------------
+  ios-sanitize-thread:
+    macos:
+      xcode: "9.0"
+    environment:
+      SCAN_WORKSPACE: platform/ios/ios.xcworkspace
+      SCAN_SCHEME: CI
+      SCAN_CONFIGURATION: Debug
+      SCAN_DEVICE: iPhone 7
+      HOMEBREW_NO_AUTO_UPDATE: 1
+    steps:
+      - checkout
+      - *install-ios-dependencies
+      - *generate-cache-key
+      - *restore-cache
+      - *reset-ccache-stats
+      - *build-iproj
+      - run:
+          name: Build and run SDK unit tests with thread sanitizer
+          command: fastlane scan --thread_sanitizer --include_simulator_logs=true
+      - *upload-ios-test-artifacts
+      - *upload-ios-test-log
+      - *show-ccache-stats
+      - *save-cache
