@@ -40,6 +40,7 @@ step-library:
         name: Generate cache key
         command: |
           echo "$(date +"%Y-%V")" > .circle-week
+          export CCACHE_DIR=/root/.ccache
           ccache --clear
           ccache --max-size=5G
   - &restore-cache
@@ -50,7 +51,7 @@ step-library:
   - &save-cache
       save_cache:
         key: 'v3/{{ .Environment.CIRCLE_JOB }}/{{ arch }}/{{ .Branch }}/{{ checksum ".circle-week" }}'
-        paths: [ "node_modules", "/root/.ccache", "~/.ccache", "mason_packages/.binaries" ]
+        paths: [ "node_modules", "/root/.ccache", "mason_packages/.binaries" ]
 
 
   - &reset-ccache-stats
