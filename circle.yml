@@ -118,7 +118,7 @@ step-library:
           sudo mkdir -p /root/.ccache
           export CCACHE_DIR=/root/.ccache
           brew install ccache
-          sudo gem install fastlane
+          sudo gem install fastlane --no-document
 
 
   - &run-node-tests
