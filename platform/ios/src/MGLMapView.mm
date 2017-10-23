@@ -3785,48 +3785,48 @@ public:
         if (!queryingShapeAnnotations) {
             // Filter out any annotation whose image or view is unselectable or for which
             // hit testing fails.
-            auto end = std::remove_if(nearbyAnnotations.begin(), nearbyAnnotations.end(), [&](const MGLAnnotationTag annotationTag) {
-                id <MGLAnnotation> annotation = [self annotationWithTag:annotationTag];
-                NSAssert(annotation, @"Unknown annotation found nearby tap");
-                if ( ! annotation)
-                {
-                    return true;
-                }
-
-                MGLAnnotationContext annotationContext = _annotationContextsByAnnotationTag.at(annotationTag);
-                CGRect annotationRect;
-
-                MGLAnnotationView *annotationView = annotationContext.annotationView;
-
-                if (annotationView)
-                {
-                    if ( ! annotationView.enabled)
-                    {
-                        return true;
-                    }
-
-                    CGPoint calloutAnchorPoint = MGLPointRounded([self convertCoordinate:annotation.coordinate toPointToView:self]);
-                    CGRect frame = CGRectInset({ calloutAnchorPoint, CGSizeZero }, -CGRectGetWidth(annotationView.frame) / 2, -CGRectGetHeight(annotationView.frame) / 2);
-                    annotationRect = UIEdgeInsetsInsetRect(frame, annotationView.alignmentRectInsets);
-                }
-                else
-                {
-                    MGLAnnotationImage *annotationImage = [self imageOfAnnotationWithTag:annotationTag];
-                    if ( ! annotationImage.enabled)
-                    {
-                        return true;
-                    }
-
-                    MGLAnnotationImage *fallbackAnnotationImage = [self dequeueReusableAnnotationImageWithIdentifier:MGLDefaultStyleMarkerSymbolName];
-                    UIImage *fallbackImage = fallbackAnnotationImage.image;
-
-                    annotationRect = [self frameOfImage:annotationImage.image ?: fallbackImage centeredAtCoordinate:annotation.coordinate];
-                }
-
-                // Filter out the annotation if the fattened finger didn’t land
-                // within the image’s alignment rect.
-                return !!!CGRectIntersectsRect(annotationRect, hitRect);
-            });
+//            auto end = std::remove_if(nearbyAnnotations.begin(), nearbyAnnotations.end(), [&](const MGLAnnotationTag annotationTag) {
+//                id <MGLAnnotation> annotation = [self annotationWithTag:annotationTag];
+//                NSAssert(annotation, @"Unknown annotation found nearby tap");
+//                if ( ! annotation)
+//                {
+//                    return true;
+//                }
+//
+//                MGLAnnotationContext annotationContext = _annotationContextsByAnnotationTag.at(annotationTag);
+//                CGRect annotationRect;
+//
+//                MGLAnnotationView *annotationView = annotationContext.annotationView;
+//
+//                if (annotationView)
+//                {
+//                    if ( ! annotationView.enabled)
+//                    {
+//                        return true;
+//                    }
+//
+//                    CGPoint calloutAnchorPoint = MGLPointRounded([self convertCoordinate:annotation.coordinate toPointToView:self]);
+//                    CGRect frame = CGRectInset({ calloutAnchorPoint, CGSizeZero }, -CGRectGetWidth(annotationView.frame) / 2, -CGRectGetHeight(annotationView.frame) / 2);
+//                    annotationRect = UIEdgeInsetsInsetRect(frame, annotationView.alignmentRectInsets);
+//                }
+//                else
+//                {
+//                    MGLAnnotationImage *annotationImage = [self imageOfAnnotationWithTag:annotationTag];
+//                    if ( ! annotationImage.enabled)
+//                    {
+//                        return true;
+//                    }
+//
+//                    MGLAnnotationImage *fallbackAnnotationImage = [self dequeueReusableAnnotationImageWithIdentifier:MGLDefaultStyleMarkerSymbolName];
+//                    UIImage *fallbackImage = fallbackAnnotationImage.image;
+//
+//                    annotationRect = [self frameOfImage:annotationImage.image ?: fallbackImage centeredAtCoordinate:annotation.coordinate];
+//                }
+//
+//                // Filter out the annotation if the fattened finger didn’t land
+//                // within the image’s alignment rect.
+//                return !!!CGRectIntersectsRect(annotationRect, hitRect);
+//            });
             
             nearbyAnnotations.resize(std::distance(nearbyAnnotations.begin(), end));
         }
