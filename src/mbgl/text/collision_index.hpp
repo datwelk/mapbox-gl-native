@@ -35,7 +35,8 @@ namespace bgm = bg::model;
 namespace bgi = bg::index;
 using CollisionPoint = bgm::point<float, 2, bg::cs::cartesian>;
 using Box = bgm::box<CollisionPoint>;
-using CollisionTreeBox = std::tuple<Box, CollisionBox, IndexedSubfeature>;
+//using CollisionTreeBox = std::tuple<Box, CollisionBox, IndexedSubfeature>;
+using CollisionTreeBox = std::tuple<Box>;//, CollisionBox, IndexedSubfeature>;
 using Tree = bgi::rtree<CollisionTreeBox, bgi::linear<16, 4>>;
 
 class IndexedSubfeature;
@@ -47,7 +48,8 @@ class CollisionIndex {
 public:
     explicit CollisionIndex(const TransformState&);
 
-    bool placeFeature(CollisionFeature& feature,
+    bool placeFeature(CollisionFeature&,// feature,
+            /*
                                       const mat4& posMatrix,
                                       const mat4& labelPlaneMatrix,
                                       const float textPixelRatio,
@@ -56,14 +58,27 @@ public:
                                       const float fontSize,
                                       const bool allowOverlap,
                                       const bool pitchWithMap,
-                                      const bool collisionDebug);
+                                      const bool collisionDebug) { return true; };
+                                      */
+                                      const mat4&,
+                                      const mat4&,
+                                      const float,
+                                      PlacedSymbol&,
+                                      const float,
+                                      const float,
+                                      const bool,
+                                      const bool,
+                                      const bool) { return true; };
 
-    void insertFeature(CollisionFeature& feature, bool ignorePlacement);
+    //void insertFeature(CollisionFeature& feature, bool ignorePlacement) {};
+    void insertFeature(CollisionFeature&, bool) {};
 
-    std::vector<IndexedSubfeature> queryRenderedSymbols(const GeometryCoordinates&, const UnwrappedTileID& tileID, const float textPixelRatio) const;
+    //std::vector<IndexedSubfeature> queryRenderedSymbols(const GeometryCoordinates&, const UnwrappedTileID& tileID, const float textPixelRatio) const { return {} };
+    std::vector<IndexedSubfeature> queryRenderedSymbols(const GeometryCoordinates&, const UnwrappedTileID&, const float) const { return {}; };
 
     
 private:
+    /*
     bool placeLineFeature(CollisionFeature& feature,
                                   const mat4& posMatrix,
                                   const mat4& labelPlaneMatrix,
@@ -78,6 +93,7 @@ private:
     Box getTreeBox(const CollisionBox& box) const;
     
     float approximateTileDistance(const TileDistance& tileDistance, const float lastSegmentAngle, const float pixelsToTileUnits, const float cameraToAnchorDistance, const bool pitchWithMap);
+    */
     
     std::pair<float,float> projectAnchor(const mat4& posMatrix, const Point<float>& point) const;
     std::pair<Point<float>,float> projectAndGetPerspectiveRatio(const mat4& posMatrix, const Point<float>& point) const;
@@ -86,8 +102,8 @@ private:
     TransformState transformState;
     float pitchFactor;
 
-    Tree tree;
-    Tree ignoredTree;
+    //Tree tree;
+    //Tree ignoredTree;
 };
 
 } // namespace mbgl

@@ -23,12 +23,13 @@ namespace mbgl {
 // the viewport for collision detection so that the bulk of the changes
 // occur offscreen. Making this constant greater increases label
 // stability, but it's expensive.
-static const float viewportPadding = 100;
+//static const float viewportPadding = 100;
 
 CollisionIndex::CollisionIndex(const TransformState& transformState_) : transformState(transformState_) {
     pitchFactor = std::cos(transformState.getPitch()) * transformState.getCameraToCenterDistance();
 }
 
+/*
 float CollisionIndex::approximateTileDistance(const TileDistance& tileDistance, const float lastSegmentAngle, const float pixelsToTileUnits, const float cameraToAnchorDistance, const bool pitchWithMap) {
     // This is a quick and dirty solution for chosing which collision circles to use (since collision circles are
     // laid out in tile units). Ideally, I think we should generate collision circles on the fly in viewport coordinates
@@ -111,12 +112,12 @@ bool CollisionIndex::placeLineFeature(CollisionFeature& feature,
         fontScale,
         lineOffsetX,
         lineOffsetY,
-        /*flip*/ false,
+        false, // flip
         labelPlaneAnchorPoint,
         tileUnitAnchorPoint,
         symbol,
         labelPlaneMatrix,
-        /*return tile distance*/ true);
+        true); // return tile distance
 
     bool collisionDetected = false;
 
@@ -300,5 +301,6 @@ Point<float> CollisionIndex::projectPoint(const mat4& posMatrix, const Point<flo
         (((-p[1] / p[3] + 1) / 2) * transformState.getSize().height) + viewportPadding
     );
 }
+*/
 
 } // namespace mbgl
