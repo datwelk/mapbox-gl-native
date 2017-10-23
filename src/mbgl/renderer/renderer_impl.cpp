@@ -27,6 +27,7 @@
 #include <mbgl/util/math.hpp>
 #include <mbgl/util/string.hpp>
 #include <mbgl/util/logging.hpp>
+#include <mbgl/text/placement.hpp>
 
 namespace mbgl {
 
@@ -345,26 +346,6 @@ void Renderer::Impl::render(const UpdateParameters& updateParameters) {
                 continue;
             }
 
-            // We're not clipping symbol layers, so when we have both parents and children of symbol
-            // layers, we drop all children in favor of their parent to avoid duplicate labels.
-            // See https://github.com/mapbox/mapbox-gl-native/issues/2482
-            if (symbolLayer) {
-                bool skip = false;
-                // Look back through the buckets we decided to render to find out whether there is
-                // already a bucket from this layer that is a parent of this tile. Tiles are ordered
-                // by zoom level when we obtain them from getTiles().
-                for (auto it = sortedTilesForInsertion.rbegin();
-                     it != sortedTilesForInsertion.rend(); ++it) {
-                    if (tile.tile.id.isChildOf(it->get().tile.id)) {
-                        skip = true;
-                        break;
-                    }
-                }
-                if (skip) {
-                    continue;
-                }
-            }
-
             auto bucket = tile.tile.getBucket(*layer->baseImpl);
             if (bucket) {
                 sortedTilesForInsertion.emplace_back(tile);
@@ -374,6 +355,14 @@ void Renderer::Impl::render(const UpdateParameters& updateParameters) {
         layer->setRenderTiles(std::move(sortedTilesForInsertion));
         order.emplace_back(RenderItem { *layer, source });
     }
+
+    Placement placement(parameters.state);
+    for (auto it = order.rbegin(); it != order.rend(); ++it) {
+        if (it->layer.is<RenderSymbolLayer>()) {
+            placement.placeLayer(*it->layer.as<RenderSymbolLayer>());
+        }
+    }
+
 
     // - UPLOAD PASS -------------------------------------------------------------------------------
     // Uploads all required buffers and images before we do any actual rendering.
