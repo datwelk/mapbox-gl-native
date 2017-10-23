@@ -12,32 +12,32 @@ trigger_map:
 workflows:
   primary:
     steps:
-    - script:
-        title: Install Dependencies
-        inputs:
-        - content: |-
-            #!/bin/bash
-            set -eu -o pipefail
-            brew install cmake
-        - is_debug: 'yes'
-    - script:
-        title: Generate Workspace
-        inputs:
-        - content: |-
-            #!/bin/bash
-            set -eu -o pipefail
-            export BUILDTYPE=Debug
-            make iproj
-        - is_debug: 'yes'
-    - xcode-test:
-        title: Run SDK Unit Tests
-        inputs:
-        - project_path: platform/ios/ios.xcworkspace
-        - scheme: CI
-    - deploy-to-bitrise-io:
-        title: Deploy to Bitrise.io
-        inputs:
-        - notify_user_groups: none
+    # - script:
+    #     title: Install Dependencies
+    #     inputs:
+    #     - content: |-
+    #         #!/bin/bash
+    #         set -eu -o pipefail
+    #         brew install cmake
+    #     - is_debug: 'yes'
+    # - script:
+    #     title: Generate Workspace
+    #     inputs:
+    #     - content: |-
+    #         #!/bin/bash
+    #         set -eu -o pipefail
+    #         export BUILDTYPE=Debug
+    #         make iproj
+    #     - is_debug: 'yes'
+    # - xcode-test:
+    #     title: Run SDK Unit Tests
+    #     inputs:
+    #     - project_path: platform/ios/ios.xcworkspace
+    #     - scheme: CI
+    # - deploy-to-bitrise-io:
+    #     title: Deploy to Bitrise.io
+    #     inputs:
+    #     - notify_user_groups: none
     - slack:
         title: Post to Slack
         inputs:
