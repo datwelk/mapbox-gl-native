@@ -116,7 +116,7 @@ step-library:
         name: Install dependencies
         command: |
           brew install cmake
-          sudo mkdir -p /root/.ccache
+          sudo mkdir -p -m 0777 /root/.ccache
           brew install ccache
           sudo gem install fastlane --no-document
 
