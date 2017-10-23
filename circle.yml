@@ -40,7 +40,6 @@ step-library:
         name: Generate cache key
         command: |
           echo "$(date +"%Y-%V")" > .circle-week
-          export CCACHE_DIR=/root/.ccache
           ccache --clear
           ccache --max-size=5G
   - &restore-cache
@@ -116,6 +115,8 @@ step-library:
         name: Install dependencies
         command: |
           brew install cmake
+          mkdir -p /root/.ccache
+          export CCACHE_DIR=/root/.ccache
           brew install ccache
           sudo gem install fastlane
 
